@@ -1,6 +1,7 @@
 class Strings {
   static const String comboFlix = 'ComboFlix';
   static const String back = 'Back';
+  static const String error = 'Unknown error. Please try again.';
 
   //authentication section
   static const String continueWith = "Continue with ";
@@ -26,7 +27,7 @@ class Strings {
   static const String passwordHint = "Password";
   static const String confirmPasswordHint = "Confirm Password";
   static const String genderHint = "Gender";
-  static const String yearHint = "Year of birth";
+  static const String yearHint = "Year of birth*";
   static const String signUpConfirm = "Create Account";
   static const String signUpFailed = "Error with Account Creation";
   static const String signInTitle = "Create your Account";

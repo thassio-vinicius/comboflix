@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "232493898393",
+    "project_id": "comboflix-77802",
+    "storage_bucket": "comboflix-77802.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:232493898393:android:4060c9fdc77b09498fb608",
+        "android_client_info": {
+          "package_name": "com.app.comboflix"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "232493898393-n2rknaa6cluev47om3muv9tb88gjrv0m.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.app.comboflix",
+            "certificate_hash": "6ad4ab8805882dff0b1273fd0fee1221aa301ad4"
+          }
+        },
+        {
+          "client_id": "232493898393-sjujvuvoisc9t4lju2gouc0rdbmqaug9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBCb_-QJ73E7WaslgeDbD2mj2yV5Ifp3sQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "232493898393-sjujvuvoisc9t4lju2gouc0rdbmqaug9.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "232493898393-iro45i32b97ar4idhfh3g0qhnd3nteg2.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.app.comboflix"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

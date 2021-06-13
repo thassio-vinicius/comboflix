@@ -67,7 +67,7 @@ class _EmailSignOptionScreenState extends State<_EmailSignOptionScreen> {
       years.add(i.toString());
     }
 
-    years.insert(0, Strings.select);
+    years.insert(0, Strings.yearHint);
     return years.toList();
   }
 
@@ -181,40 +181,46 @@ class _EmailSignOptionScreenState extends State<_EmailSignOptionScreen> {
     required bool enabled,
   }) {
     return Padding(
-      padding: EdgeInsets.symmetric(vertical: Adapt.px(12)),
-      child: DropdownButtonFormField<String>(
-        isExpanded: true,
-        decoration: InputDecoration(
-          errorText: errorText,
-          enabled: enabled,
-          errorStyle: Theme.of(context).textTheme.headline3!.copyWith(
-                fontSize: Adapt.px(15),
-                color: Theme.of(context).buttonColor,
-              ),
-          contentPadding: EdgeInsets.all(Adapt.px(4)),
-          labelText: label,
-          labelStyle: Theme.of(context).textTheme.headline3,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.all(Radius.circular(Adapt.px(8))),
-            borderSide: BorderSide(
-              color: Theme.of(context).cursorColor,
-              width: 3,
-            ),
+      padding:
+          EdgeInsets.symmetric(vertical: Adapt.px(12), horizontal: Adapt.px(3)),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Theme.of(context).cardColor,
+          borderRadius: BorderRadius.all(Radius.circular(Adapt.px(8))),
+        ),
+        child: DropdownButtonFormField<String>(
+          isExpanded: true,
+          decoration: InputDecoration(
+            errorText: errorText,
+            enabled: enabled,
+            errorStyle: Theme.of(context).textTheme.headline5!.copyWith(
+                  fontSize: Adapt.px(15),
+                  color: Colors.red,
+                ),
+            contentPadding: EdgeInsets.all(Adapt.px(10)),
+            border: OutlineInputBorder(
+                borderRadius: BorderRadius.all(Radius.circular(Adapt.px(8))),
+                borderSide: BorderSide.none),
           ),
+          value: currentValue,
+          icon: Icon(
+            Icons.arrow_drop_down,
+            color: Theme.of(context).indicatorColor,
+          ),
+          itemHeight: Adapt.px(50),
+          items: items.map((item) {
+            return DropdownMenuItem<String>(
+              child: dropdownItem(
+                  item,
+                  Theme.of(context)
+                      .textTheme
+                      .headline3!
+                      .copyWith(fontSize: Adapt.px(15))),
+              value: item,
+            );
+          }).toList(),
+          onChanged: onChanged,
         ),
-        value: currentValue,
-        icon: Icon(
-          Icons.arrow_drop_down,
-          color: Theme.of(context).cursorColor,
-        ),
-        itemHeight: Adapt.px(50),
-        items: items.map((item) {
-          return DropdownMenuItem<String>(
-            child: dropdownItem(item, Theme.of(context).textTheme.headline3),
-            value: item,
-          );
-        }).toList(),
-        onChanged: onChanged,
       ),
     );
   }
@@ -261,7 +267,7 @@ class _EmailSignOptionScreenState extends State<_EmailSignOptionScreen> {
               children: [
                 Text(
                   Strings.noAccount,
-                  style: Theme.of(context).textTheme.headline2,
+                  style: Theme.of(context).textTheme.headline6,
                 ),
                 Padding(
                   padding: EdgeInsets.only(left: Adapt.px(4)),
@@ -307,7 +313,7 @@ class _EmailSignOptionScreenState extends State<_EmailSignOptionScreen> {
           ),
           dropdownButton(
             currentValue: model.year,
-            label: Strings.yearHint + '*',
+            label: Strings.yearHint,
             items: years(),
             onChanged: model.updateYear,
             enabled: !model.isLoading,

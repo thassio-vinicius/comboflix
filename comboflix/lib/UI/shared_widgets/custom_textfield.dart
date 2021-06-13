@@ -69,7 +69,7 @@ class CustomTextField extends StatelessWidget {
                   autocorrect: autoCorrect,
                   onChanged: onChanged,
                   controller: controller,
-                  style: Theme.of(context).textTheme.headline3,
+                  style: Theme.of(context).textTheme.headline5,
                   obscureText: obscureText,
                   cursorColor: Theme.of(context).indicatorColor,
                   decoration: InputDecoration(
@@ -77,7 +77,7 @@ class CustomTextField extends StatelessWidget {
                     hintText: hint,
                     errorStyle: Theme.of(context).textTheme.headline3!.copyWith(
                           fontSize: Adapt.px(15),
-                          color: Theme.of(context).buttonColor,
+                          color: Colors.red,
                         ),
                     hintStyle: Theme.of(context)
                         .textTheme

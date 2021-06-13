@@ -17,7 +17,7 @@ class EmailModel with TextFieldValidators, ChangeNotifier {
     this.displayName = '',
     this.confirmPassword = '',
     this.gender = Strings.select,
-    this.year = Strings.select,
+    this.year = Strings.yearHint,
     this.isLoading = false,
     this.submitted = false,
   });
@@ -126,7 +126,7 @@ class EmailModel with TextFieldValidators, ChangeNotifier {
       displayName: '',
       confirmPassword: '',
       gender: Strings.select,
-      year: Strings.select,
+      year: Strings.yearHint,
       formType: formType,
       isLoading: false,
       submitted: false,

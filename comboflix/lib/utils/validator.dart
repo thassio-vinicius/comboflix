@@ -63,7 +63,7 @@ class NonEmptyStringValidator extends StringValidator {
 class NotSelectedStringValidator extends StringValidator {
   @override
   bool isValid(String? value) {
-    return value != Strings.select;
+    return value != Strings.yearHint;
   }
 }
 

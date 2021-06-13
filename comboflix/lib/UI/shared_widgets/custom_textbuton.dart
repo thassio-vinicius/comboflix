@@ -26,16 +26,16 @@ class CustomTextButton extends StatelessWidget {
           border: underline
               ? Border(
                   bottom: BorderSide(
-                    color: color ?? Theme.of(context).indicatorColor,
-                    width: 2,
+                    color: color ?? Colors.white,
+                    width: 1,
                   ),
                 )
               : null,
         ),
         child: Text(
           label!,
-          style: Theme.of(context).textTheme.headline2!.copyWith(
-                color: color ?? Theme.of(context).indicatorColor,
+          style: Theme.of(context).textTheme.headline6!.copyWith(
+                color: color ?? Theme.of(context).textTheme.headline6!.color,
               ),
         ),
       ),

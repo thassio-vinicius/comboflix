@@ -54,12 +54,12 @@ class CustomPrimaryButton extends StatelessWidget {
                         child: Text(
                           label!,
                           style: whiteTheme
-                              ? Theme.of(context).textTheme.button!.copyWith(
+                              ? Theme.of(context).textTheme.headline5!.copyWith(
                                   color: Theme.of(context).buttonColor)
-                              : Theme.of(context).textTheme.button!.copyWith(
+                              : Theme.of(context).textTheme.headline6!.copyWith(
                                   color: Theme.of(context)
                                       .textTheme
-                                      .button!
+                                      .headline6!
                                       .color!
                                       .withOpacity(enabled ? 1 : 0.9)),
                         ),
@@ -69,14 +69,11 @@ class CustomPrimaryButton extends StatelessWidget {
                 : Text(
                     label!,
                     style: whiteTheme
-                        ? Theme.of(context)
-                            .textTheme
-                            .button!
-                            .copyWith(color: Theme.of(context).buttonColor)
+                        ? Theme.of(context).textTheme.headline5
                         : Theme.of(context).textTheme.button!.copyWith(
                             color: Theme.of(context)
                                 .textTheme
-                                .button!
+                                .headline6!
                                 .color!
                                 .withOpacity(enabled ? 1 : 0.9)),
                   ),
@@ -90,7 +87,7 @@ class CustomPrimaryButton extends StatelessWidget {
                   debugPrint("button disabled");
                 },
       color: whiteTheme
-          ? Colors.transparent
+          ? Colors.white
           : Theme.of(context).buttonColor.withOpacity(enabled ? 1 : 0.5),
       height: height ?? Adapt().hp(10),
       shape: RoundedRectangleBorder(
