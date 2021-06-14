@@ -35,7 +35,7 @@ class CustomTextField extends StatelessWidget {
     this.autoCorrect = false,
     this.usesSuffix = false,
     this.obscureText = false,
-    this.border = true,
+    this.border = false,
   });
 
   @override

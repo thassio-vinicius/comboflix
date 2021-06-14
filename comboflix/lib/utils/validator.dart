@@ -94,7 +94,11 @@ class TextFieldValidators {
   final StringValidator confirmPasswordSubmitValidator =
       NonEmptyStringValidator();
   final StringValidator yearSubmitValidator = NotSelectedStringValidator();
-  final StringValidator genderSubmitValidator = AlwaysValidStringValidator();
-  final StringValidator hearingTestCodeSubmitValidator =
+  final StringValidator languageSubmitValidator = NotSelectedStringValidator();
+  final StringValidator typeSubmitValidator = NotSelectedStringValidator();
+  final StringValidator descriptionSubmitValidator =
       AlwaysValidStringValidator();
+  final StringValidator ageRestrictionSubmitValidator =
+      AlwaysValidStringValidator();
+  final StringValidator genderSubmitValidator = AlwaysValidStringValidator();
 }

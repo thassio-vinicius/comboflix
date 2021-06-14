@@ -6,7 +6,7 @@ Para criar uma lista, é necessário antes cadastrar o item (tipo do item, nome,
 
 Haverá também no app um cadastro básico de usuário (nome, email, idade, senha), a fim de controlar a criação de listas com base na faixa etária. Por exemplo, um menor de idade não pode cadastrar e compartilhar filmes para maiores de 18 anos, como Deadpool.
 
-Por fim, o app permite o cadastramento de inúmeros filmes, portanto haverá a opçãoo de filtros e ordenação para facilitar a busca desses filmes. Os filtros serão:
+Por fim, o app permite o cadastramento de inúmeros filmes, portanto haverá a opção de filtros e ordenação para facilitar a busca desses filmes. Os filtros serão:
 
 - ordem de avaliação
 - ordem de lançamento

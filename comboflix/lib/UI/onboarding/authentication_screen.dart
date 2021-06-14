@@ -60,17 +60,6 @@ class _EmailSignOptionScreenState extends State<_EmailSignOptionScreen> {
   final TextEditingController confirmPasswordController =
       TextEditingController();
 
-  List<String> years() {
-    int year = DateTime.now().year;
-    List<String> years = [];
-    for (int i = year; i > year - 120; i--) {
-      years.add(i.toString());
-    }
-
-    years.insert(0, Strings.yearHint);
-    return years.toList();
-  }
-
   EmailModel get model => widget.model;
 
   bool usesInitialFormType = true;
@@ -154,6 +143,12 @@ class _EmailSignOptionScreenState extends State<_EmailSignOptionScreen> {
 
   void displayNameEditingComplete() {
     if (model.canSubmitDisplayName) {
+      node.nextFocus();
+    }
+  }
+
+  void yearEditingComplete() {
+    if (model.canSubmitYear) {
       node.nextFocus();
     }
   }
@@ -305,19 +300,20 @@ class _EmailSignOptionScreenState extends State<_EmailSignOptionScreen> {
               inputFormatters: <TextInputFormatter>[model.emailInputFormatter]),
           CustomTextField(
             controller: displayNameController,
-            hint: Strings.displayNameHint + '*',
+            hint: Strings.name + '*',
             errorText: model.displayNameErrorText,
             onChanged: model.updateDisplayName,
             enabled: !model.isLoading,
             onEditingComplete: displayNameEditingComplete,
           ),
-          dropdownButton(
-            currentValue: model.year,
-            label: Strings.yearHint,
-            items: years(),
+          CustomTextField(
+            controller: displayNameController,
+            hint: Strings.yearHint + '*',
+            errorText: model.yearErrorText,
             onChanged: model.updateYear,
             enabled: !model.isLoading,
-            errorText: model.yearErrorText,
+            keyboardType: TextInputType.number,
+            onEditingComplete: yearEditingComplete,
           ),
           CustomTextField(
             controller: passwordController,

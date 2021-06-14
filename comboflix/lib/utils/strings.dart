@@ -1,7 +1,64 @@
 class Strings {
   static const String comboFlix = 'ComboFlix';
   static const String back = 'Back';
+  static const String confirm = 'Confirm';
   static const String error = 'Unknown error. Please try again.';
+
+  //home section
+  static const String addMedia = 'New Media';
+  static const String noMovies =
+      'No movies available\nTap \'+\' to add a new movie';
+  static const String noLists =
+      'No lists available\nTap \'+\' to add a new list';
+  static const String noDescription = 'No description';
+
+  //media section
+  static const String cantBeEmpty = ' can\'t be empty';
+  static const String yearOfLaunch = 'Year of launch';
+  static const String ageRestriction = 'Age Restriction';
+  static const String genre = 'Genre';
+  static const String language = 'Language';
+  static const String description = 'Description';
+  static const String type = 'Type';
+  static const String rating = 'Rating';
+
+  static const List<String> genres = [
+    'Action',
+    'Comedy',
+    'Drama',
+    'Fantasy',
+    'Horror',
+    'Mystery',
+    'Romance',
+    'Thriller',
+    'Western',
+    Strings.genre,
+  ];
+  static const List<String> mediaTypes = [
+    'Movie',
+    'TV Show',
+    'Documentary',
+    Strings.type,
+  ];
+  static const List<String> languages = [
+    'English',
+    'Portuguese',
+    'Korean',
+    'German',
+    'Mandarin',
+    'Japanese',
+    'French',
+    'Spanish',
+    'Russian',
+    'Arabic',
+    'Turkish',
+    'Italian',
+    'Greek',
+    'Dutch',
+    'Polish',
+    'Hindi',
+    Strings.language,
+  ];
 
   //authentication section
   static const String continueWith = "Continue with ";
@@ -22,12 +79,12 @@ class Strings {
   static const String select = "Select";
   static const String termsPrivacy =
       "By continuing you agree to eargym’s terms & conditions and privacy policy";
-  static const String displayNameHint = "Name";
+  static const String name = "Name";
   static const String emailHint = "Email Address";
   static const String passwordHint = "Password";
   static const String confirmPasswordHint = "Confirm Password";
   static const String genderHint = "Gender";
-  static const String yearHint = "Year of birth*";
+  static const String yearHint = "Year of birth";
   static const String signUpConfirm = "Create Account";
   static const String signUpFailed = "Error with Account Creation";
   static const String signInTitle = "Create your Account";
