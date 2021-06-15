@@ -80,7 +80,7 @@ class ComboFlix extends StatelessWidget {
             ),
           ),
           backgroundColor: HexColor('#4D44A3'), //purple
-          buttonColor: HexColor('#202250'), //darker purple
+          buttonColor: HexColor('#202250'), //dark purple
           cardColor: HexColor('A57BC4'), // light purple
           indicatorColor: HexColor('4D44A3'), //dark purple
         ),
@@ -90,6 +90,8 @@ class ComboFlix extends StatelessWidget {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return LoadingScreen();
             } else {
+              print(snapshot.data);
+
               return SplashScreen(snapshot.hasData);
             }
           },

@@ -51,7 +51,7 @@ class Media {
         year = json['year'],
         ageRestriction = json['ageRestriction'],
         rating = json['rating'],
-        creationDate = json['creationDate'],
+        creationDate = json['creationDate'].toDate(),
         description = json['description'];
 
   Media.fromSnapshot(DocumentSnapshot snapshot)

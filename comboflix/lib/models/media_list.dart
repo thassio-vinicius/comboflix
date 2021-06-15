@@ -22,7 +22,7 @@ class MediaList {
 
   MediaList.fromJson(Map<String, dynamic> json, {DocumentReference? reference})
       : name = json['name'],
-        creationDate = json['creationDate'],
+        creationDate = json['creationDate'].toDate(),
         content = json['content'] != null
             ? List.from(json['content']).map((e) => Media.fromJson(e)).toList()
             : null;

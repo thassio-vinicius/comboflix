@@ -4,10 +4,12 @@ import 'package:comboflix/UI/home/home_model.dart';
 import 'package:comboflix/UI/onboarding/authentication_screen.dart';
 import 'package:comboflix/UI/shared_widgets/custom_primarybutton.dart';
 import 'package:comboflix/UI/shared_widgets/custom_textfield.dart';
+import 'package:comboflix/UI/shared_widgets/loading_screen.dart';
 import 'package:comboflix/models/firestore_user.dart';
 import 'package:comboflix/services/authentication_provider.dart';
 import 'package:comboflix/services/firestore_provider.dart';
 import 'package:comboflix/utils/adapt.dart';
+import 'package:comboflix/utils/hex_color.dart';
 import 'package:comboflix/utils/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -21,28 +23,43 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final FirestoreProvider provider =
         Provider.of<FirestoreProvider>(context, listen: false);
-    return StreamBuilder<FirestoreUser>(
-      stream: provider.currentUserStream(),
+    return FutureBuilder<FirestoreUser>(
+      future: provider.currentUser(),
       builder: (context, snapshot) {
-        if (snapshot.connectionState != ConnectionState.active) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return LoadingScreen();
+        }
+
+        if (snapshot.hasError) {
           return Scaffold(
-            backgroundColor: Theme.of(context).backgroundColor,
             body: Center(
-              child: CircularProgressIndicator(
-                valueColor:
-                    AlwaysStoppedAnimation<Color>(Theme.of(context).cardColor),
+              child: Text(
+                snapshot.error.toString(),
               ),
             ),
           );
-        } else
-          return ChangeNotifierProvider(
-            create: (_) =>
-                HomeModel(firestoreProvider: provider, user: snapshot.data!),
-            child: Consumer<HomeModel>(
-              builder: (_, model, ___) =>
-                  _HomeScreen(model, fromSplash, snapshot.data!),
-            ),
-          );
+        }
+
+        return StreamBuilder<FirestoreUser>(
+          initialData: snapshot.data,
+          stream: provider.currentUserStream(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState != ConnectionState.active) {
+              return LoadingScreen();
+            } else {
+              print('data from snapshot ' + snapshot.data.toString());
+
+              return ChangeNotifierProvider(
+                create: (_) => HomeModel(
+                    firestoreProvider: provider, user: snapshot.data!),
+                child: Consumer<HomeModel>(
+                  builder: (_, model, ___) =>
+                      _HomeScreen(model, fromSplash, snapshot.data!),
+                ),
+              );
+            }
+          },
+        );
       },
     );
   }
@@ -200,19 +217,60 @@ class __HomeScreenState extends State<_HomeScreen>
       ),
       body: Stack(
         children: [
-          widget.user.medias != null && widget.user.medias!.isNotEmpty
+          widget.user.medias!.isNotEmpty
               ? ListView.builder(
+                  itemCount: widget.user.medias!.length,
                   itemBuilder: (context, index) => Padding(
                     padding: EdgeInsets.all(Adapt.px(12.0)),
                     child: Container(
                       decoration: BoxDecoration(
-                          color: Theme.of(context).cardColor,
+                          color: Theme.of(context).buttonColor,
                           borderRadius:
                               BorderRadius.all(Radius.circular(Adapt.px(12)))),
                       padding: EdgeInsets.all(Adapt.px(8)),
-                      child: Text(
-                        widget.user.medias![index].name,
-                        style: Theme.of(context).textTheme.headline6,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          Text(
+                            widget.user.medias![index].name,
+                            style: Theme.of(context).textTheme.headline4,
+                          ),
+                          Text(
+                            widget.user.medias![index].type +
+                                ' - ' +
+                                widget.user.medias![index].genre +
+                                ' - ' +
+                                widget.user.medias![index].language,
+                            style: Theme.of(context).textTheme.headline6,
+                          ),
+                          RichText(
+                            text: TextSpan(
+                              children: [
+                                WidgetSpan(
+                                  child: Icon(
+                                    Icons.star,
+                                    color: HexColor('ffd700'),
+                                  ),
+                                ),
+                                TextSpan(
+                                  text: widget.user.medias![index].rating
+                                      .toStringAsFixed(1),
+                                  style: Theme.of(context).textTheme.headline6,
+                                )
+                              ],
+                            ),
+                          ),
+                          Text(
+                            Strings.ageRestriction +
+                                ': ' +
+                                (widget.user.medias![index].ageRestriction > 0
+                                    ? widget.user.medias![index].ageRestriction
+                                        .toString()
+                                    : 'Free'),
+                            style: Theme.of(context).textTheme.headline6,
+                          ),
+                        ],
                       ),
                     ),
                   ),

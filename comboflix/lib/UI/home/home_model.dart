@@ -58,33 +58,36 @@ class HomeModel with TextFieldValidators, ChangeNotifier {
     );
 
     try {
-      updateWith(submitted: true, isLoading: true);
+      updateWith(submitted: true);
       if (!canSubmit) {
         print('cant submit');
         updateWith(isLoading: false);
       } else {
+        print('form type ' + formType.toString());
+
+        updateWith(isLoading: true);
+
         if (formType == FormType.media) {
-          List<Media>? medias = user.medias;
-
           print(media.toString());
-
-          medias!.add(media);
 
           print(' set data');
 
           await firestoreProvider.updateData(
             collectionPath: 'users',
             documentPath: user.uid,
-            data: {'medias': FieldValue.arrayUnion(medias)},
+            data: {
+              'medias': FieldValue.arrayUnion([media.toJson()])
+            },
           );
         } else {
-          List<MediaList>? lists = user.lists;
-          lists!.add(MediaList(name: listName, creationDate: DateTime.now()));
-
           await firestoreProvider.updateData(
             collectionPath: 'users',
             documentPath: user.uid,
-            data: {'lists': FieldValue.arrayUnion(lists)},
+            data: {
+              'lists': FieldValue.arrayUnion([
+                MediaList(name: listName, creationDate: DateTime.now()).toJson()
+              ])
+            },
           );
         }
 
