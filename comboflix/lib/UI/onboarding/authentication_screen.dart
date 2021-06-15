@@ -56,6 +56,7 @@ class _EmailSignOptionScreenState extends State<_EmailSignOptionScreen> {
   final FocusScopeNode node = FocusScopeNode();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController displayNameController = TextEditingController();
+  final TextEditingController yearController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController confirmPasswordController =
       TextEditingController();
@@ -307,7 +308,7 @@ class _EmailSignOptionScreenState extends State<_EmailSignOptionScreen> {
             onEditingComplete: displayNameEditingComplete,
           ),
           CustomTextField(
-            controller: displayNameController,
+            controller: yearController,
             hint: Strings.yearHint + '*',
             errorText: model.yearErrorText,
             onChanged: model.updateYear,

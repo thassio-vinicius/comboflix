@@ -40,6 +40,7 @@ class ComboFlix extends StatelessWidget {
         ),
       ],
       child: MaterialApp(
+        debugShowCheckedModeBanner: false,
         theme: ThemeData(
           textTheme: TextTheme(
             headline1: GoogleFonts.openSans(

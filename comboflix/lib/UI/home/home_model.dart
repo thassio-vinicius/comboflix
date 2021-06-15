@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:comboflix/models/firestore_user.dart';
 import 'package:comboflix/models/media.dart';
 import 'package:comboflix/models/media_list.dart';
@@ -44,10 +45,20 @@ class HomeModel with TextFieldValidators, ChangeNotifier {
   Future<bool> submit() async {
     print('submit');
 
-    updateWith(isLoading: true);
+    Media media = Media(
+      name: displayName,
+      genre: genre,
+      type: type,
+      language: language,
+      description: description,
+      year: int.parse(year),
+      ageRestriction: int.parse(ageRestriction),
+      rating: rating,
+      creationDate: DateTime.now(),
+    );
 
     try {
-      updateWith(submitted: true);
+      updateWith(submitted: true, isLoading: true);
       if (!canSubmit) {
         print('cant submit');
         updateWith(isLoading: false);
@@ -55,53 +66,25 @@ class HomeModel with TextFieldValidators, ChangeNotifier {
         if (formType == FormType.media) {
           List<Media>? medias = user.medias;
 
-          if (medias != null) {
-            medias.add(
-              Media(
-                  name: displayName,
-                  genre: genre,
-                  type: type,
-                  language: language,
-                  year: int.parse(year),
-                  ageRestriction: int.parse(ageRestriction),
-                  rating: rating,
-                  creationDate: DateTime.now()),
-            );
-          } else {
-            medias = [];
+          print(media.toString());
 
-            medias.add(
-              Media(
-                  name: displayName,
-                  genre: genre,
-                  type: type,
-                  language: language,
-                  year: int.parse(year),
-                  ageRestriction: int.parse(ageRestriction),
-                  rating: rating,
-                  creationDate: DateTime.now()),
-            );
-          }
+          medias!.add(media);
 
-          firestoreProvider.updateData(
+          print(' set data');
+
+          await firestoreProvider.updateData(
             collectionPath: 'users',
             documentPath: user.uid,
-            data: {'medias': medias.map((e) => e.toJson()).toList()},
+            data: {'medias': FieldValue.arrayUnion(medias)},
           );
         } else {
           List<MediaList>? lists = user.lists;
-          if (lists != null) {
-            lists.add(MediaList(name: listName, creationDate: DateTime.now()));
-          } else {
-            lists = [];
+          lists!.add(MediaList(name: listName, creationDate: DateTime.now()));
 
-            lists.add(MediaList(name: listName, creationDate: DateTime.now()));
-          }
-
-          firestoreProvider.updateData(
+          await firestoreProvider.updateData(
             collectionPath: 'users',
             documentPath: user.uid,
-            data: {'lists': lists.map((e) => e.toJson()).toList()},
+            data: {'lists': FieldValue.arrayUnion(lists)},
           );
         }
 
@@ -196,11 +179,11 @@ class HomeModel with TextFieldValidators, ChangeNotifier {
   }
 
   bool get canSubmitType {
-    return genderSubmitValidator.isValid(genre) && genre.isNotEmpty;
+    return genderSubmitValidator.isValid(type) && type.isNotEmpty;
   }
 
   bool get canSubmitLanguage {
-    return genderSubmitValidator.isValid(genre) && genre.isNotEmpty;
+    return genderSubmitValidator.isValid(language) && language.isNotEmpty;
   }
 
   bool get canSubmitRating {
@@ -208,7 +191,11 @@ class HomeModel with TextFieldValidators, ChangeNotifier {
   }
 
   bool get canSubmitAdultMovie {
-    return int.parse(ageRestriction) >= 18 && int.parse(user.year) >= 18;
+    if (int.parse(ageRestriction) >= 18) {
+      return int.parse(user.year) >= 18;
+    }
+
+    return true;
   }
 
   bool get canSubmit {
@@ -227,7 +214,22 @@ class HomeModel with TextFieldValidators, ChangeNotifier {
       canSubmitFields = canSubmitListName;
     }
 
+    print('canSubmitDisplayName ' + canSubmitDisplayName.toString());
+    print('canSubmitYear ' + canSubmitYear.toString());
+    print('canSubmitGenre ' + canSubmitGenre.toString());
+    print('canSubmitAgeRestriction ' + canSubmitAgeRestriction.toString());
+    print('canSubmitDescription ' + canSubmitDescription.toString());
+    print('canSubmitRating ' + canSubmitRating.toString());
+    print('canSubmitType ' + canSubmitType.toString());
+    print('canSubmitAdultMovie ' + canSubmitAdultMovie.toString());
+    print('canSubmitLanguage ' + canSubmitLanguage.toString());
+
     print(canSubmitFields);
     return canSubmitFields && !isLoading;
+  }
+
+  @override
+  String toString() {
+    return 'HomeModel{firestoreProvider: $firestoreProvider, user: $user, formType: $formType, type: $type, description: $description, listName: $listName, displayName: $displayName, language: $language, genre: $genre, year: $year, ageRestriction: $ageRestriction, rating: $rating, isLoading: $isLoading, submitted: $submitted}';
   }
 }

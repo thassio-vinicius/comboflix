@@ -11,6 +11,7 @@ class Strings {
   static const String noLists =
       'No lists available\nTap \'+\' to add a new list';
   static const String noDescription = 'No description';
+  static const String logOut = 'Log out';
 
   //media section
   static const String cantBeEmpty = ' can\'t be empty';

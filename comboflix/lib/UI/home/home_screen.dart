@@ -1,13 +1,16 @@
 import 'dart:async';
 
 import 'package:comboflix/UI/home/home_model.dart';
+import 'package:comboflix/UI/onboarding/authentication_screen.dart';
 import 'package:comboflix/UI/shared_widgets/custom_primarybutton.dart';
 import 'package:comboflix/UI/shared_widgets/custom_textfield.dart';
 import 'package:comboflix/models/firestore_user.dart';
+import 'package:comboflix/services/authentication_provider.dart';
 import 'package:comboflix/services/firestore_provider.dart';
 import 'package:comboflix/utils/adapt.dart';
 import 'package:comboflix/utils/strings.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -31,16 +34,15 @@ class HomeScreen extends StatelessWidget {
               ),
             ),
           );
-        }
-
-        return ChangeNotifierProvider(
-          create: (_) =>
-              HomeModel(firestoreProvider: provider, user: snapshot.data!),
-          child: Consumer<HomeModel>(
-            builder: (_, model, ___) =>
-                _HomeScreen(model, fromSplash, snapshot.data!),
-          ),
-        );
+        } else
+          return ChangeNotifierProvider(
+            create: (_) =>
+                HomeModel(firestoreProvider: provider, user: snapshot.data!),
+            child: Consumer<HomeModel>(
+              builder: (_, model, ___) =>
+                  _HomeScreen(model, fromSplash, snapshot.data!),
+            ),
+          );
       },
     );
   }
@@ -57,7 +59,8 @@ class _HomeScreen extends StatefulWidget {
   __HomeScreenState createState() => __HomeScreenState();
 }
 
-class __HomeScreenState extends State<_HomeScreen> {
+class __HomeScreenState extends State<_HomeScreen>
+    with SingleTickerProviderStateMixin {
   late double opacity;
   HomeModel get model => widget.model;
   final FocusScopeNode node = FocusScopeNode();
@@ -65,6 +68,9 @@ class __HomeScreenState extends State<_HomeScreen> {
   TextEditingController listNameController = TextEditingController();
   TextEditingController descriptionController = TextEditingController();
   TextEditingController ageRestrictionController = TextEditingController();
+  late AnimationController animationController;
+  Tween<Offset> tween = Tween(begin: Offset(0, 1), end: Offset(0, 0));
+  bool showFloatingButton = true;
 
   List<String> years() {
     int year = DateTime.now().year;
@@ -87,6 +93,15 @@ class __HomeScreenState extends State<_HomeScreen> {
     } else {
       opacity = 1;
     }
+    animationController =
+        AnimationController(vsync: this, duration: kThemeAnimationDuration);
+
+    animationController.addStatusListener((status) {
+      setState(() {
+        print(status);
+        showFloatingButton = status != AnimationStatus.completed;
+      });
+    });
     super.initState();
   }
 
@@ -115,11 +130,14 @@ class __HomeScreenState extends State<_HomeScreen> {
     }
   }
 
-  Future<void> submit(context) async {
+  Future<void> submit() async {
+    FocusScope.of(context).unfocus();
+    print(model.toString());
+
     try {
       final bool result = await model.submit();
       if (result) {
-        Navigator.pop(context);
+        animationController.reverse();
       } else {
         //showExceptionAlertDialog(context: context, title: title, exception: exception)
       }
@@ -133,148 +151,221 @@ class __HomeScreenState extends State<_HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).backgroundColor,
-      body: Center(
-        child: widget.user.medias!.isNotEmpty && widget.user.medias != null
-            ? ListView.builder(
-                itemBuilder: (context, index) => Padding(
-                  padding: EdgeInsets.all(Adapt.px(12.0)),
-                  child: Container(
-                    decoration: BoxDecoration(
-                        color: Theme.of(context).cardColor,
-                        borderRadius:
-                            BorderRadius.all(Radius.circular(Adapt.px(12)))),
-                    padding: EdgeInsets.all(Adapt.px(8)),
-                    child: Text(
-                      widget.user.medias![index].name,
-                      style: Theme.of(context).textTheme.headline6,
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            ListTile(
+              title: Text(Strings.logOut),
+              onTap: () =>
+                  Provider.of<AuthenticationProvider>(context, listen: false)
+                      .signOut()
+                      .then(
+                (_) {
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(
+                      builder: (BuildContext context) =>
+                          AuthenticationScreen(false),
                     ),
-                  ),
-                ),
-              )
-            : Text(
-                Strings.noMovies,
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.headline6,
+                    (_) => false,
+                  );
+                },
               ),
+            )
+          ],
+        ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => showModalBottomSheet(
-          context: context,
-          backgroundColor: Colors.white,
-          builder: (context) => Container(
-            height: Adapt().hp(75),
-            padding: EdgeInsets.all(Adapt.px(16)),
-            child: FocusScope(
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    Align(
-                      alignment: Alignment.topLeft,
-                      child: IconButton(
-                        onPressed: () => Navigator.pop(context),
-                        icon: Icon(
-                          Icons.close,
-                          color: Theme.of(context).buttonColor,
-                        ),
-                      ),
-                    ),
-                    Text(
-                      Strings.addMedia,
-                      textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.headline3,
-                    ),
-                    CustomTextField(
-                      controller: nameController,
-                      hint: Strings.name + '*',
-                      errorText: model.submitted && model.canSubmitDisplayName
-                          ? Strings.name + Strings.cantBeEmpty
-                          : null,
-                      onChanged: model.updateDisplayName,
-                      enabled: !model.isLoading,
-                      onEditingComplete: displayNameEditingComplete,
-                    ),
-                    dropdownButton(
-                      currentValue: model.year,
-                      label: Strings.yearHint,
-                      items: years(),
-                      onChanged: model.updateYear,
-                      enabled: !model.isLoading,
-                      errorText: model.submitted && model.canSubmitYear
-                          ? Strings.yearOfLaunch + Strings.cantBeEmpty
-                          : null,
-                    ),
-                    dropdownButton(
-                      currentValue: model.genre,
-                      label: Strings.genre,
-                      items: Strings.genres,
-                      onChanged: model.updateGenre,
-                      enabled: !model.isLoading,
-                      errorText: model.submitted && !model.canSubmitGenre
-                          ? Strings.genre + Strings.cantBeEmpty
-                          : null,
-                    ),
-                    dropdownButton(
-                      currentValue: model.language,
-                      label: Strings.language,
-                      items: Strings.languages,
-                      onChanged: model.updateLanguage,
-                      enabled: !model.isLoading,
-                      errorText: model.submitted && !model.canSubmitLanguage
-                          ? Strings.language + Strings.cantBeEmpty
-                          : null,
-                    ),
-                    dropdownButton(
-                      currentValue: model.type,
-                      label: Strings.type,
-                      items: Strings.mediaTypes,
-                      onChanged: model.updateType,
-                      enabled: !model.isLoading,
-                      errorText: model.submitted && !model.canSubmitType
-                          ? Strings.type + Strings.cantBeEmpty
-                          : null,
-                    ),
-                    CustomTextField(
-                      controller: ageRestrictionController,
-                      hint: Strings.ageRestriction + '*',
-                      errorText:
-                          model.submitted && !model.canSubmitAgeRestriction
-                              ? Strings.ageRestriction + Strings.cantBeEmpty
-                              : null,
-                      onChanged: model.updateAgeRestriction,
-                      enabled: !model.isLoading,
-                      onEditingComplete: ageRestrictionEditingComplete,
-                    ),
-                    CustomTextField(
-                      controller: descriptionController,
-                      hint: Strings.description + '*',
-                      errorText: model.submitted && !model.canSubmitDescription
-                          ? Strings.description + Strings.cantBeEmpty
-                          : null,
-                      onChanged: model.updateDescription,
-                      enabled: !model.isLoading,
-                      onEditingComplete: descriptionEditingComplete,
-                    ),
-                    CustomPrimaryButton(
-                        onPressed: () => submit(context),
-                        label: Strings.confirm)
-                  ],
-                ),
-              ),
-            ),
-          ),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(Adapt.px(12)),
-              topRight: Radius.circular(Adapt.px(12)),
+      appBar: AppBar(
+        backgroundColor: Theme.of(context).buttonColor,
+        centerTitle: true,
+        leading: Builder(
+          builder: (context) => IconButton(
+            onPressed: () => Scaffold.of(context).openDrawer(),
+            icon: Icon(
+              Icons.menu,
+              color: Colors.white,
             ),
           ),
         ),
-        backgroundColor: Theme.of(context).buttonColor,
-        child: Icon(
-          Icons.add,
+        title: Text(
+          Strings.comboFlix,
+          style: GoogleFonts.bangers(
+            fontSize: Adapt.px(35),
+            letterSpacing: 5,
+            color: Colors.white,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ),
+      body: Stack(
+        children: [
+          widget.user.medias != null && widget.user.medias!.isNotEmpty
+              ? ListView.builder(
+                  itemBuilder: (context, index) => Padding(
+                    padding: EdgeInsets.all(Adapt.px(12.0)),
+                    child: Container(
+                      decoration: BoxDecoration(
+                          color: Theme.of(context).cardColor,
+                          borderRadius:
+                              BorderRadius.all(Radius.circular(Adapt.px(12)))),
+                      padding: EdgeInsets.all(Adapt.px(8)),
+                      child: Text(
+                        widget.user.medias![index].name,
+                        style: Theme.of(context).textTheme.headline6,
+                      ),
+                    ),
+                  ),
+                )
+              : Center(
+                  child: Text(
+                    Strings.noMovies,
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.headline6,
+                  ),
+                ),
+          SizedBox.expand(
+            child: SlideTransition(
+              position: tween.animate(animationController),
+              child: DraggableScrollableSheet(
+                initialChildSize: 0.50,
+                minChildSize: 0.5,
+                maxChildSize: 0.95,
+                builder: (context, scrollController) => FocusScope(
+                  child: SingleChildScrollView(
+                    controller: scrollController,
+                    child: addMediaColumn(),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+      floatingActionButton: showFloatingButton
+          ? FloatingActionButton(
+              onPressed: () {
+                animationController.forward();
+              },
+              backgroundColor: Theme.of(context).buttonColor,
+              child: Icon(
+                Icons.add,
+                color: Colors.white,
+              ),
+            )
+          : null,
+    );
+  }
+
+  Widget addMediaColumn() {
+    return FocusScope(
+      node: node,
+      child: Container(
+        decoration: BoxDecoration(
           color: Colors.white,
+          borderRadius: BorderRadius.only(
+            topRight: Radius.circular(Adapt.px(12)),
+            topLeft: Radius.circular(Adapt.px(12)),
+          ),
+        ),
+        padding: EdgeInsets.all(Adapt.px(12)),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            Align(
+              alignment: Alignment.topLeft,
+              child: IconButton(
+                onPressed: () {
+                  //if (_animationController.isCompleted) {
+                  animationController.reverse();
+                  FocusScope.of(context).unfocus();
+                  //}
+                },
+                icon: Icon(
+                  Icons.close,
+                  color: Theme.of(context).buttonColor,
+                ),
+              ),
+            ),
+            Text(
+              Strings.addMedia,
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.headline3,
+            ),
+            CustomTextField(
+              controller: nameController,
+              hint: Strings.name + '*',
+              errorText: model.submitted && !model.canSubmitDisplayName
+                  ? Strings.name + Strings.cantBeEmpty
+                  : null,
+              onChanged: model.updateDisplayName,
+              enabled: !model.isLoading,
+              onEditingComplete: displayNameEditingComplete,
+            ),
+            dropdownButton(
+              currentValue: model.year,
+              label: Strings.yearHint,
+              items: years(),
+              onChanged: model.updateYear,
+              enabled: !model.isLoading,
+              errorText: model.submitted && !model.canSubmitYear
+                  ? Strings.yearOfLaunch + Strings.cantBeEmpty
+                  : null,
+            ),
+            dropdownButton(
+              currentValue: model.genre,
+              label: Strings.genre,
+              items: Strings.genres,
+              onChanged: model.updateGenre,
+              enabled: !model.isLoading,
+              errorText: model.submitted && !model.canSubmitGenre
+                  ? Strings.genre + Strings.cantBeEmpty
+                  : null,
+            ),
+            dropdownButton(
+              currentValue: model.language,
+              label: Strings.language,
+              items: Strings.languages,
+              onChanged: model.updateLanguage,
+              enabled: !model.isLoading,
+              errorText: model.submitted && !model.canSubmitLanguage
+                  ? Strings.language + Strings.cantBeEmpty
+                  : null,
+            ),
+            dropdownButton(
+              currentValue: model.type,
+              label: Strings.type,
+              items: Strings.mediaTypes,
+              onChanged: model.updateType,
+              enabled: !model.isLoading,
+              errorText: model.submitted && !model.canSubmitType
+                  ? Strings.type + Strings.cantBeEmpty
+                  : null,
+            ),
+            CustomTextField(
+              controller: ageRestrictionController,
+              hint: Strings.ageRestriction + '*',
+              errorText: model.submitted && !model.canSubmitAgeRestriction
+                  ? Strings.ageRestriction + Strings.cantBeEmpty
+                  : null,
+              onChanged: model.updateAgeRestriction,
+              keyboardType: TextInputType.number,
+              enabled: !model.isLoading,
+              onEditingComplete: ageRestrictionEditingComplete,
+            ),
+            CustomTextField(
+              controller: descriptionController,
+              hint: Strings.description + '*',
+              errorText: model.submitted && !model.canSubmitDescription
+                  ? Strings.description + Strings.cantBeEmpty
+                  : null,
+              onChanged: model.updateDescription,
+              enabled: !model.isLoading,
+              onEditingComplete: descriptionEditingComplete,
+            ),
+            CustomPrimaryButton(onPressed: submit, label: Strings.confirm)
+          ],
         ),
       ),
     );
@@ -297,6 +388,7 @@ class __HomeScreenState extends State<_HomeScreen> {
           borderRadius: BorderRadius.all(Radius.circular(Adapt.px(8))),
         ),
         child: DropdownButtonFormField<String>(
+          onTap: () => FocusScope.of(context).unfocus(),
           isExpanded: true,
           decoration: InputDecoration(
             errorText: errorText,

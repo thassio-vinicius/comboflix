@@ -12,8 +12,8 @@ class FirestoreUser {
     required this.email,
     required this.uid,
     required this.year,
-    this.medias,
-    this.lists,
+    this.medias = const [],
+    this.lists = const [],
   });
 
   FirestoreUser copyWith({
