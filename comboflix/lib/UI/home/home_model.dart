@@ -24,6 +24,7 @@ class HomeModel with TextFieldValidators, ChangeNotifier {
   double? rating;
   bool isLoading;
   bool submitted;
+  List<Media> content;
 
   HomeModel({
     required this.firestoreProvider,
@@ -38,6 +39,7 @@ class HomeModel with TextFieldValidators, ChangeNotifier {
     this.ageRestriction = '',
     this.rating,
     this.formType = FormType.media,
+    this.content = const [],
     this.isLoading = false,
     this.submitted = false,
   });
@@ -85,7 +87,11 @@ class HomeModel with TextFieldValidators, ChangeNotifier {
             documentPath: user.uid,
             data: {
               'lists': FieldValue.arrayUnion([
-                MediaList(name: listName, creationDate: DateTime.now()).toJson()
+                MediaList(
+                  name: listName,
+                  creationDate: DateTime.now(),
+                  content: content,
+                ).toJson()
               ])
             },
           );
@@ -124,6 +130,8 @@ class HomeModel with TextFieldValidators, ChangeNotifier {
 
   void updateFormType(FormType formType) => updateWith(formType: formType);
 
+  void updateListContent(List<Media> content) => updateWith(content: content);
+
   void updateWith({
     String? language,
     String? description,
@@ -137,6 +145,7 @@ class HomeModel with TextFieldValidators, ChangeNotifier {
     FormType? formType,
     bool? isLoading,
     bool? submitted,
+    List<Media>? content,
   }) {
     this.language = language ?? this.language;
     this.description = description ?? this.description;
@@ -150,6 +159,7 @@ class HomeModel with TextFieldValidators, ChangeNotifier {
     this.listName = listName ?? this.listName;
     this.submitted = submitted ?? this.submitted;
     this.formType = formType ?? this.formType;
+    this.content = content ?? this.content;
     notifyListeners();
   }
 

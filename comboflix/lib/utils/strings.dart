@@ -4,6 +4,7 @@ class Strings {
   static const String confirm = 'Confirm';
   static const String error = 'Unknown error. Please try again.';
   static const String none = 'None';
+  static const String create = 'Create';
 
   //home section
   static const String addMedia = 'New Media';
@@ -13,6 +14,8 @@ class Strings {
       'No lists available\nTap \'+\' to add a new list';
   static const String noDescription = 'No description';
   static const String logOut = 'Log out';
+  static const String createList = 'Create List';
+  static const String nameTheList = 'Put a name on your list!';
 
   //media section
   static const String addRating = 'Add Rating';

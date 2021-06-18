@@ -1,16 +1,17 @@
 import 'dart:async';
 
 import 'package:comboflix/UI/home/home_model.dart';
+import 'package:comboflix/UI/home/media_item.dart';
 import 'package:comboflix/UI/onboarding/authentication_screen.dart';
 import 'package:comboflix/UI/shared_widgets/custom_primarybutton.dart';
 import 'package:comboflix/UI/shared_widgets/custom_textfield.dart';
 import 'package:comboflix/UI/shared_widgets/loading_screen.dart';
 import 'package:comboflix/UI/shared_widgets/star_rating.dart';
 import 'package:comboflix/models/firestore_user.dart';
+import 'package:comboflix/models/media.dart';
 import 'package:comboflix/services/authentication_provider.dart';
 import 'package:comboflix/services/firestore_provider.dart';
 import 'package:comboflix/utils/adapt.dart';
-import 'package:comboflix/utils/hex_color.dart';
 import 'package:comboflix/utils/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -78,17 +79,21 @@ class _HomeScreen extends StatefulWidget {
 }
 
 class __HomeScreenState extends State<_HomeScreen>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   late double opacity;
+  double listButtonOpacity = 0;
+
   HomeModel get model => widget.model;
   final FocusScopeNode node = FocusScopeNode();
   TextEditingController nameController = TextEditingController();
   TextEditingController listNameController = TextEditingController();
   TextEditingController descriptionController = TextEditingController();
   TextEditingController ageRestrictionController = TextEditingController();
-  late AnimationController animationController;
-  Tween<Offset> tween = Tween(begin: Offset(0, 1), end: Offset(0, 0));
+  late AnimationController draggableController;
+  bool showListButton = false;
+  Tween<Offset> draggableTween = Tween(begin: Offset(0, 1), end: Offset(0, 0));
   bool showFloatingButton = true;
+  List<Media> itemsForList = [];
 
   List<String> years() {
     int year = DateTime.now().year;
@@ -111,13 +116,14 @@ class __HomeScreenState extends State<_HomeScreen>
     } else {
       opacity = 1;
     }
-    animationController =
+    draggableController =
         AnimationController(vsync: this, duration: kThemeAnimationDuration);
 
-    animationController.addStatusListener((status) {
+    draggableController.addStatusListener((status) {
       setState(() {
         print(status);
         showFloatingButton = status != AnimationStatus.completed;
+        showListButton = status != AnimationStatus.completed;
       });
     });
     super.initState();
@@ -148,14 +154,22 @@ class __HomeScreenState extends State<_HomeScreen>
     }
   }
 
-  Future<void> submit() async {
+  Future<void> submit(context) async {
     FocusScope.of(context).unfocus();
     print(model.toString());
 
     try {
       final bool result = await model.submit();
       if (result) {
-        animationController.reverse();
+        draggableController.reverse();
+        if (model.formType == FormType.list) {
+          setState(() {
+            itemsForList = [];
+            showListButton = false;
+            showFloatingButton = true;
+            Navigator.pop(context);
+          });
+        }
       } else {
         //showExceptionAlertDialog(context: context, title: title, exception: exception)
       }
@@ -221,59 +235,30 @@ class __HomeScreenState extends State<_HomeScreen>
           widget.user.medias!.isNotEmpty
               ? ListView.builder(
                   itemCount: widget.user.medias!.length,
-                  itemBuilder: (context, index) => Padding(
-                    padding: EdgeInsets.all(Adapt.px(12.0)),
-                    child: Container(
-                      decoration: BoxDecoration(
-                          color: Theme.of(context).buttonColor,
-                          borderRadius:
-                              BorderRadius.all(Radius.circular(Adapt.px(12)))),
-                      padding: EdgeInsets.all(Adapt.px(8)),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          Text(
-                            widget.user.medias![index].name,
-                            style: Theme.of(context).textTheme.headline4,
-                          ),
-                          Text(
-                            widget.user.medias![index].type +
-                                ' - ' +
-                                widget.user.medias![index].genre +
-                                ' - ' +
-                                widget.user.medias![index].language,
-                            style: Theme.of(context).textTheme.headline6,
-                          ),
-                          RichText(
-                            text: TextSpan(
-                              children: [
-                                WidgetSpan(
-                                  child: Icon(
-                                    Icons.star,
-                                    color: HexColor('ffd700'),
-                                  ),
-                                ),
-                                TextSpan(
-                                  text: widget.user.medias![index].rating
-                                      .toStringAsFixed(1),
-                                  style: Theme.of(context).textTheme.headline6,
-                                )
-                              ],
-                            ),
-                          ),
-                          Text(
-                            Strings.ageRestriction +
-                                ': ' +
-                                (widget.user.medias![index].ageRestriction > 0
-                                    ? widget.user.medias![index].ageRestriction
-                                        .toString()
-                                    : Strings.none),
-                            style: Theme.of(context).textTheme.headline6,
-                          ),
-                        ],
-                      ),
-                    ),
+                  itemBuilder: (context, index) => MediaItem(
+                    media: widget.user.medias![index],
+                    checkBoxValue:
+                        itemsForList.contains(widget.user.medias![index]),
+                    onChanged: (value) {
+                      if (value!) {
+                        setState(() {
+                          showListButton = true;
+                          listButtonOpacity = 1;
+                          showFloatingButton = false;
+                          itemsForList.add(widget.user.medias![index]);
+                        });
+                      } else {
+                        setState(() {
+                          itemsForList.remove(widget.user.medias![index]);
+
+                          if (itemsForList.isEmpty) {
+                            showListButton = false;
+                            listButtonOpacity = 0;
+                            showFloatingButton = true;
+                          }
+                        });
+                      }
+                    },
                   ),
                 )
               : Center(
@@ -285,7 +270,7 @@ class __HomeScreenState extends State<_HomeScreen>
                 ),
           SizedBox.expand(
             child: SlideTransition(
-              position: tween.animate(animationController),
+              position: draggableTween.animate(draggableController),
               child: DraggableScrollableSheet(
                 initialChildSize: 0.50,
                 minChildSize: 0.5,
@@ -299,12 +284,109 @@ class __HomeScreenState extends State<_HomeScreen>
               ),
             ),
           ),
+          if (showListButton)
+            Positioned(
+              bottom: 10,
+              left: 60,
+              right: 60,
+              child: Padding(
+                padding: EdgeInsets.all(Adapt.px(12)),
+                child: Container(
+                  decoration: BoxDecoration(
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black45,
+                        offset: Offset(2, -2),
+                        blurRadius: 2,
+                      ),
+                      BoxShadow(
+                        color: Colors.black45,
+                        offset: Offset(-2, 2),
+                        blurRadius: 2,
+                      ),
+                    ],
+                    borderRadius:
+                        BorderRadius.all(Radius.circular(Adapt.px(16))),
+                  ),
+                  height: Adapt().hp(10),
+                  child: AnimatedOpacity(
+                      opacity: listButtonOpacity,
+                      duration: kThemeAnimationDuration,
+                      child: CustomPrimaryButton(
+                          radius: 16,
+                          whiteTheme: true,
+                          loading: model.isLoading,
+                          enabled: !model.isLoading,
+                          onPressed: () {
+                            model.updateFormType(FormType.list);
+                            model.updateListContent(itemsForList);
+                            model.updateListName('');
+                            listNameController.clear();
+                            return showDialog(
+                              context: context,
+                              builder: (context) => Dialog(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.all(
+                                    Radius.circular(Adapt.px(8)),
+                                  ),
+                                ),
+                                child: Padding(
+                                  padding: EdgeInsets.all(Adapt.px(12)),
+                                  child: SizedBox(
+                                    height: Adapt().hp(35),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceEvenly,
+                                      children: [
+                                        Padding(
+                                          padding: EdgeInsets.only(
+                                              top: Adapt.px(12)),
+                                          child: Text(
+                                            Strings.nameTheList,
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .headline3,
+                                          ),
+                                        ),
+                                        CustomTextField(
+                                          controller: listNameController,
+                                          onChanged: model.updateListName,
+                                          hint: Strings.name + '*',
+                                          errorText: model.submitted &&
+                                                  !model.canSubmitDisplayName
+                                              ? Strings.name +
+                                                  Strings.cantBeEmpty +
+                                                  Strings.nameSmaller
+                                              : null,
+                                          enabled: !model.isLoading,
+                                          onEditingComplete:
+                                              displayNameEditingComplete,
+                                        ),
+                                        CustomPrimaryButton(
+                                          onPressed: () => submit(context),
+                                          enabled: !model.isLoading,
+                                          label: Strings.create,
+                                          loading: model.isLoading,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                          label: Strings.createList)),
+                ),
+              ),
+            )
         ],
       ),
       floatingActionButton: showFloatingButton
           ? FloatingActionButton(
               onPressed: () {
-                animationController.forward();
+                draggableController.forward();
                 nameController.clear();
                 listNameController.clear();
                 descriptionController.clear();
@@ -353,7 +435,7 @@ class __HomeScreenState extends State<_HomeScreen>
               child: IconButton(
                 onPressed: () {
                   //if (_animationController.isCompleted) {
-                  animationController.reverse();
+                  draggableController.reverse();
                   FocusScope.of(context).unfocus();
                   //}
                 },
@@ -461,7 +543,12 @@ class __HomeScreenState extends State<_HomeScreen>
                 ),
               ],
             ),
-            CustomPrimaryButton(onPressed: submit, label: Strings.confirm)
+            CustomPrimaryButton(
+              onPressed: () => submit(context),
+              label: Strings.confirm,
+              loading: model.isLoading,
+              enabled: !model.isLoading,
+            )
           ],
         ),
       ),

@@ -34,6 +34,6 @@ class MediaList {
   Map<String, dynamic> toJson() => {
         'name': this.name,
         'creationDate': this.creationDate,
-        'content': this.content,
+        'content': this.content!.map((e) => e.toJson()).toList(),
       };
 }

@@ -12,12 +12,14 @@ class CustomPrimaryButton extends StatelessWidget {
   final IconData? iconData;
   final String? iconPath;
   final bool assetIcon;
+  final double? radius;
   const CustomPrimaryButton({
     required this.onPressed,
     required this.label,
     this.height,
     this.iconData,
     this.iconPath,
+    this.radius,
     this.enabled = true,
     this.whiteTheme = false,
     this.loading = false,
@@ -55,7 +57,8 @@ class CustomPrimaryButton extends StatelessWidget {
                           label!,
                           style: whiteTheme
                               ? Theme.of(context).textTheme.headline5!.copyWith(
-                                  color: Theme.of(context).buttonColor)
+                                  color: Theme.of(context).buttonColor,
+                                  fontWeight: FontWeight.bold)
                               : Theme.of(context).textTheme.headline6!.copyWith(
                                   color: Theme.of(context)
                                       .textTheme
@@ -69,7 +72,10 @@ class CustomPrimaryButton extends StatelessWidget {
                 : Text(
                     label!,
                     style: whiteTheme
-                        ? Theme.of(context).textTheme.headline5
+                        ? Theme.of(context)
+                            .textTheme
+                            .headline5!
+                            .copyWith(fontWeight: FontWeight.bold)
                         : Theme.of(context).textTheme.button!.copyWith(
                             color: Theme.of(context)
                                 .textTheme
@@ -94,7 +100,8 @@ class CustomPrimaryButton extends StatelessWidget {
           side: whiteTheme
               ? BorderSide(color: Theme.of(context).buttonColor)
               : BorderSide.none,
-          borderRadius: BorderRadius.all(Radius.circular(Adapt.px(4)))),
+          borderRadius:
+              BorderRadius.all(Radius.circular(Adapt.px(radius ?? 4)))),
     );
   }
 }
