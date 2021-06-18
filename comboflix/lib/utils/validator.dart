@@ -90,7 +90,7 @@ class TextFieldValidators {
   final StringValidator emailSubmitValidator = EmailSubmitRegexValidator();
   final StringValidator passwordSubmitValidator = MinLengthStringValidator(6);
   final StringValidator displayNameSubmitValidator =
-      MinLengthStringValidator(3);
+      MinLengthStringValidator(2);
   final StringValidator confirmPasswordSubmitValidator =
       NonEmptyStringValidator();
   final StringValidator yearSubmitValidator = NotSelectedStringValidator();

@@ -21,22 +21,22 @@ class HomeModel with TextFieldValidators, ChangeNotifier {
   String genre;
   String year;
   String ageRestriction;
-  double rating;
+  double? rating;
   bool isLoading;
   bool submitted;
 
   HomeModel({
     required this.firestoreProvider,
     required this.user,
-    this.type = Strings.type,
+    this.type = Strings.type + '*',
     this.description = '',
     this.displayName = '',
-    this.language = Strings.language,
-    this.genre = Strings.genre,
-    this.year = Strings.yearOfLaunch,
+    this.language = Strings.language + '*',
+    this.genre = Strings.genre + '*',
+    this.year = Strings.yearOfLaunch + '*',
     this.listName = '',
     this.ageRestriction = '',
-    this.rating = 0.0,
+    this.rating,
     this.formType = FormType.media,
     this.isLoading = false,
     this.submitted = false,
@@ -44,18 +44,6 @@ class HomeModel with TextFieldValidators, ChangeNotifier {
 
   Future<bool> submit() async {
     print('submit');
-
-    Media media = Media(
-      name: displayName,
-      genre: genre,
-      type: type,
-      language: language,
-      description: description,
-      year: int.parse(year),
-      ageRestriction: int.parse(ageRestriction),
-      rating: rating,
-      creationDate: DateTime.now(),
-    );
 
     try {
       updateWith(submitted: true);
@@ -68,6 +56,18 @@ class HomeModel with TextFieldValidators, ChangeNotifier {
         updateWith(isLoading: true);
 
         if (formType == FormType.media) {
+          Media media = Media(
+            name: displayName,
+            genre: genre,
+            type: type,
+            language: language,
+            description: description,
+            year: int.parse(year),
+            ageRestriction: int.parse(ageRestriction),
+            rating: rating!,
+            creationDate: DateTime.now(),
+          );
+
           print(media.toString());
 
           print(' set data');
@@ -174,28 +174,39 @@ class HomeModel with TextFieldValidators, ChangeNotifier {
   }
 
   bool get canSubmitYear {
-    return yearSubmitValidator.isValid(year) && year.isNotEmpty;
+    return yearSubmitValidator.isValid(year) &&
+        year.isNotEmpty &&
+        year != Strings.yearOfLaunch + '*';
+    ;
   }
 
   bool get canSubmitGenre {
-    return genderSubmitValidator.isValid(genre) && genre.isNotEmpty;
+    return genderSubmitValidator.isValid(genre) &&
+        genre.isNotEmpty &&
+        genre != Strings.genre + '*';
   }
 
   bool get canSubmitType {
-    return genderSubmitValidator.isValid(type) && type.isNotEmpty;
+    return genderSubmitValidator.isValid(type) &&
+        type.isNotEmpty &&
+        type != Strings.type + '*';
   }
 
   bool get canSubmitLanguage {
-    return genderSubmitValidator.isValid(language) && language.isNotEmpty;
+    return genderSubmitValidator.isValid(language) &&
+        language.isNotEmpty &&
+        language != Strings.language + '*';
   }
 
   bool get canSubmitRating {
-    return rating >= 0 && rating <= 5;
+    return rating != null && rating! >= 0 && rating! <= 5;
   }
 
   bool get canSubmitAdultMovie {
-    if (int.parse(ageRestriction) >= 18) {
-      return int.parse(user.year) >= 18;
+    if (ageRestriction.isNotEmpty) {
+      if (int.parse(ageRestriction) >= 18) {
+        return int.parse(user.year) >= 18;
+      }
     }
 
     return true;

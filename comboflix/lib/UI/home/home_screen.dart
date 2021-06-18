@@ -5,6 +5,7 @@ import 'package:comboflix/UI/onboarding/authentication_screen.dart';
 import 'package:comboflix/UI/shared_widgets/custom_primarybutton.dart';
 import 'package:comboflix/UI/shared_widgets/custom_textfield.dart';
 import 'package:comboflix/UI/shared_widgets/loading_screen.dart';
+import 'package:comboflix/UI/shared_widgets/star_rating.dart';
 import 'package:comboflix/models/firestore_user.dart';
 import 'package:comboflix/services/authentication_provider.dart';
 import 'package:comboflix/services/firestore_provider.dart';
@@ -96,7 +97,7 @@ class __HomeScreenState extends State<_HomeScreen>
       years.add(i.toString());
     }
 
-    years.insert(0, Strings.yearOfLaunch);
+    years.insert(0, Strings.yearOfLaunch + '*');
     return years.toList();
   }
 
@@ -267,7 +268,7 @@ class __HomeScreenState extends State<_HomeScreen>
                                 (widget.user.medias![index].ageRestriction > 0
                                     ? widget.user.medias![index].ageRestriction
                                         .toString()
-                                    : 'Free'),
+                                    : Strings.none),
                             style: Theme.of(context).textTheme.headline6,
                           ),
                         ],
@@ -304,6 +305,22 @@ class __HomeScreenState extends State<_HomeScreen>
           ? FloatingActionButton(
               onPressed: () {
                 animationController.forward();
+                nameController.clear();
+                listNameController.clear();
+                descriptionController.clear();
+                ageRestrictionController.clear();
+                model.updateWith(
+                  language: Strings.language + '*',
+                  genre: Strings.genre + '*',
+                  year: Strings.yearOfLaunch + '*',
+                  displayName: '',
+                  description: '',
+                  listName: '',
+                  ageRestriction: '',
+                  rating: 0,
+                  type: Strings.type + '*',
+                  submitted: false,
+                );
               },
               backgroundColor: Theme.of(context).buttonColor,
               child: Icon(
@@ -355,7 +372,7 @@ class __HomeScreenState extends State<_HomeScreen>
               controller: nameController,
               hint: Strings.name + '*',
               errorText: model.submitted && !model.canSubmitDisplayName
-                  ? Strings.name + Strings.cantBeEmpty
+                  ? Strings.name + Strings.cantBeEmpty + Strings.nameSmaller
                   : null,
               onChanged: model.updateDisplayName,
               enabled: !model.isLoading,
@@ -363,7 +380,7 @@ class __HomeScreenState extends State<_HomeScreen>
             ),
             dropdownButton(
               currentValue: model.year,
-              label: Strings.yearHint,
+              label: Strings.yearOfLaunch + '*',
               items: years(),
               onChanged: model.updateYear,
               enabled: !model.isLoading,
@@ -373,7 +390,7 @@ class __HomeScreenState extends State<_HomeScreen>
             ),
             dropdownButton(
               currentValue: model.genre,
-              label: Strings.genre,
+              label: Strings.genre + '*',
               items: Strings.genres,
               onChanged: model.updateGenre,
               enabled: !model.isLoading,
@@ -383,8 +400,8 @@ class __HomeScreenState extends State<_HomeScreen>
             ),
             dropdownButton(
               currentValue: model.language,
-              label: Strings.language,
-              items: Strings.languages,
+              label: Strings.language + '*',
+              items: Strings.languages.reversed.toList(),
               onChanged: model.updateLanguage,
               enabled: !model.isLoading,
               errorText: model.submitted && !model.canSubmitLanguage
@@ -393,7 +410,7 @@ class __HomeScreenState extends State<_HomeScreen>
             ),
             dropdownButton(
               currentValue: model.type,
-              label: Strings.type,
+              label: Strings.type + '*',
               items: Strings.mediaTypes,
               onChanged: model.updateType,
               enabled: !model.isLoading,
@@ -421,6 +438,28 @@ class __HomeScreenState extends State<_HomeScreen>
               onChanged: model.updateDescription,
               enabled: !model.isLoading,
               onEditingComplete: descriptionEditingComplete,
+            ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text(
+                  model.submitted && !model.canSubmitRating
+                      ? Strings.rating + Strings.cantBeEmpty
+                      : Strings.addRating + '*',
+                  style: Theme.of(context).textTheme.headline5!.copyWith(
+                      color: model.submitted && !model.canSubmitRating
+                          ? Colors.red
+                          : Theme.of(context).textTheme.headline5!.color,
+                      fontWeight: FontWeight.w600),
+                ),
+                Padding(
+                  padding: EdgeInsets.symmetric(vertical: Adapt.px(12)),
+                  child: StarRating(
+                    onRatingChanged: model.updateRating,
+                    rating: model.rating ?? 0,
+                  ),
+                ),
+              ],
             ),
             CustomPrimaryButton(onPressed: submit, label: Strings.confirm)
           ],

@@ -3,6 +3,7 @@ class Strings {
   static const String back = 'Back';
   static const String confirm = 'Confirm';
   static const String error = 'Unknown error. Please try again.';
+  static const String none = 'None';
 
   //home section
   static const String addMedia = 'New Media';
@@ -14,6 +15,7 @@ class Strings {
   static const String logOut = 'Log out';
 
   //media section
+  static const String addRating = 'Add Rating';
   static const String cantBeEmpty = ' can\'t be empty';
   static const String yearOfLaunch = 'Year of launch';
   static const String ageRestriction = 'Age Restriction';
@@ -22,6 +24,7 @@ class Strings {
   static const String description = 'Description';
   static const String type = 'Type';
   static const String rating = 'Rating';
+  static const String nameSmaller = ' or smaller than 2 characters';
 
   static const List<String> genres = [
     'Action',
@@ -33,13 +36,13 @@ class Strings {
     'Romance',
     'Thriller',
     'Western',
-    Strings.genre,
+    Strings.genre + '*',
   ];
   static const List<String> mediaTypes = [
     'Movie',
     'TV Show',
     'Documentary',
-    Strings.type,
+    Strings.type + '*',
   ];
   static const List<String> languages = [
     'English',
@@ -58,7 +61,7 @@ class Strings {
     'Dutch',
     'Polish',
     'Hindi',
-    Strings.language,
+    Strings.language + '*',
   ];
 
   //authentication section
@@ -85,7 +88,7 @@ class Strings {
   static const String passwordHint = "Password";
   static const String confirmPasswordHint = "Confirm Password";
   static const String genderHint = "Gender";
-  static const String yearHint = "Year of birth";
+  static const String yearHint = "How old are you?";
   static const String signUpConfirm = "Create Account";
   static const String signUpFailed = "Error with Account Creation";
   static const String signInTitle = "Create your Account";
