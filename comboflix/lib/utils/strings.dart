@@ -5,6 +5,8 @@ class Strings {
   static const String error = 'Unknown error. Please try again.';
   static const String none = 'None';
   static const String create = 'Create';
+  static const String home = 'Home';
+  static const String mediaLists = 'Media Lists';
 
   //home section
   static const String addMedia = 'New Media';
