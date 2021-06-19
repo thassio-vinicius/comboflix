@@ -168,62 +168,6 @@ class _EmailSignOptionScreenState extends State<_EmailSignOptionScreen> {
     submit();
   }
 
-  dropdownButton({
-    required String label,
-    required List<String> items,
-    required Function(String?) onChanged,
-    required String currentValue,
-    String? errorText,
-    required bool enabled,
-  }) {
-    return Padding(
-      padding:
-          EdgeInsets.symmetric(vertical: Adapt.px(12), horizontal: Adapt.px(3)),
-      child: Container(
-        decoration: BoxDecoration(
-          color: Theme.of(context).cardColor,
-          borderRadius: BorderRadius.all(Radius.circular(Adapt.px(8))),
-        ),
-        child: DropdownButtonFormField<String>(
-          isExpanded: true,
-          decoration: InputDecoration(
-            errorText: errorText,
-            enabled: enabled,
-            errorStyle: Theme.of(context).textTheme.headline5!.copyWith(
-                  fontSize: Adapt.px(15),
-                  color: Colors.red,
-                ),
-            contentPadding: EdgeInsets.all(Adapt.px(10)),
-            border: OutlineInputBorder(
-                borderRadius: BorderRadius.all(Radius.circular(Adapt.px(8))),
-                borderSide: BorderSide.none),
-          ),
-          value: currentValue,
-          icon: Icon(
-            Icons.arrow_drop_down,
-            color: Theme.of(context).indicatorColor,
-          ),
-          itemHeight: Adapt.px(50),
-          items: items.map((item) {
-            return DropdownMenuItem<String>(
-              child: dropdownItem(
-                  item,
-                  Theme.of(context)
-                      .textTheme
-                      .headline3!
-                      .copyWith(fontSize: Adapt.px(15))),
-              value: item,
-            );
-          }).toList(),
-          onChanged: onChanged,
-        ),
-      ),
-    );
-  }
-
-  Text dropdownItem(String label, TextStyle? style) =>
-      Text(label, style: style);
-
   Widget buildFields() {
     late List<Widget> children;
 

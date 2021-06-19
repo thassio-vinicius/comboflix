@@ -35,7 +35,7 @@ class CustomTextField extends StatelessWidget {
     this.autoCorrect = false,
     this.usesSuffix = false,
     this.obscureText = false,
-    this.border = false,
+    this.border = true,
   });
 
   @override
@@ -44,12 +44,12 @@ class CustomTextField extends StatelessWidget {
       padding: EdgeInsets.symmetric(vertical: Adapt.px(12)),
       child: Container(
         decoration: BoxDecoration(
-          color: color ?? Theme.of(context).cardColor,
+          color: color ?? Colors.white,
           borderRadius: BorderRadius.all(Radius.circular(Adapt.px(8))),
           border: border
               ? Border.all(
                   color: Theme.of(context).indicatorColor,
-                  width: 3,
+                  width: 1,
                 )
               : null,
         ),

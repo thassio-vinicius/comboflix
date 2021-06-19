@@ -558,7 +558,8 @@ class __HomeScreenState extends State<_HomeScreen>
           EdgeInsets.symmetric(vertical: Adapt.px(12), horizontal: Adapt.px(3)),
       child: Container(
         decoration: BoxDecoration(
-          color: Theme.of(context).cardColor,
+          color: Colors.white,
+          border: Border.all(color: Theme.of(context).indicatorColor, width: 1),
           borderRadius: BorderRadius.all(Radius.circular(Adapt.px(8))),
         ),
         child: DropdownButtonFormField<String>(
