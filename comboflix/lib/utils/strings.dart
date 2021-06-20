@@ -7,6 +7,9 @@ class Strings {
   static const String create = 'Create';
   static const String home = 'Home';
   static const String mediaLists = 'Media Lists';
+  static const String ok = 'Ok';
+  static const String cancel = 'Cancel';
+  static const String close = 'Close';
 
   //home section
   static const String addMedia = 'New Media';
@@ -20,6 +23,9 @@ class Strings {
   static const String nameTheList = 'Put a name on your list!';
 
   //media section
+  static const String notOldEnough = 'Not old enough';
+  static const String adultMovieException =
+      'You have to be 18 or older to add and share adult movies';
   static const String addRating = 'Add Rating';
   static const String cantBeEmpty = ' can\'t be empty';
   static const String yearOfLaunch = 'Year of launch';

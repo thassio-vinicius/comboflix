@@ -4,6 +4,7 @@ import 'package:comboflix/UI/home/custom_drawer.dart';
 import 'package:comboflix/UI/home/home_model.dart';
 import 'package:comboflix/UI/home/list_screen.dart';
 import 'package:comboflix/UI/home/media_item.dart';
+import 'package:comboflix/UI/shared_widgets/custom_alertdialog.dart';
 import 'package:comboflix/UI/shared_widgets/custom_primarybutton.dart';
 import 'package:comboflix/UI/shared_widgets/custom_textfield.dart';
 import 'package:comboflix/UI/shared_widgets/loading_screen.dart';
@@ -34,6 +35,8 @@ class HomeScreen extends StatelessWidget {
         }
 
         if (snapshot.hasError) {
+          print('has error');
+          print('snapshot future ' + snapshot.data.toString());
           return Scaffold(
             body: Center(
               child: Text(
@@ -91,7 +94,6 @@ class __HomeScreenState extends State<_HomeScreen>
   TextEditingController descriptionController = TextEditingController();
   TextEditingController ageRestrictionController = TextEditingController();
   late AnimationController draggableController;
-  bool showListButton = false;
   Tween<Offset> draggableTween = Tween(begin: Offset(0, 1), end: Offset(0, 0));
   bool showFloatingButton = true;
   List<Media> itemsForList = [];
@@ -124,7 +126,6 @@ class __HomeScreenState extends State<_HomeScreen>
       setState(() {
         print(status);
         showFloatingButton = status != AnimationStatus.completed;
-        showListButton = status != AnimationStatus.completed;
       });
     });
     super.initState();
@@ -166,13 +167,20 @@ class __HomeScreenState extends State<_HomeScreen>
         if (model.formType == FormType.list) {
           setState(() {
             itemsForList = [];
-            showListButton = false;
             showFloatingButton = true;
             Navigator.pop(context);
           });
           Fluttertoast.showToast(msg: 'List created successfully');
         }
       } else {
+        if (model.formType == FormType.media && !model.canSubmitAdultMovie) {
+          showAlertDialog(
+            context: context,
+            title: Strings.notOldEnough,
+            content: Strings.adultMovieException,
+            defaultActionText: Strings.close,
+          );
+        }
         //showExceptionAlertDialog(context: context, title: title, exception: exception)
       }
     } catch (e, stackTrace) {
@@ -262,7 +270,6 @@ class __HomeScreenState extends State<_HomeScreen>
                   onChanged: (value) {
                     if (value!) {
                       setState(() {
-                        showListButton = true;
                         listButtonOpacity = 1;
                         showFloatingButton = false;
                         itemsForList.add(widget.user.medias![index]);
@@ -272,7 +279,6 @@ class __HomeScreenState extends State<_HomeScreen>
                         itemsForList.remove(widget.user.medias![index]);
 
                         if (itemsForList.isEmpty) {
-                          showListButton = false;
                           listButtonOpacity = 0;
                           showFloatingButton = true;
                         }
@@ -304,11 +310,13 @@ class __HomeScreenState extends State<_HomeScreen>
             ),
           ),
         ),
-        if (showListButton)
-          Positioned(
-            bottom: 10,
-            left: 60,
-            right: 60,
+        Positioned(
+          bottom: 10,
+          left: 60,
+          right: 60,
+          child: AnimatedOpacity(
+            opacity: listButtonOpacity,
+            duration: kThemeAnimationDuration,
             child: Padding(
               padding: EdgeInsets.all(Adapt.px(12)),
               child: Container(
@@ -316,90 +324,80 @@ class __HomeScreenState extends State<_HomeScreen>
                   boxShadow: [
                     BoxShadow(
                       color: Colors.black45,
-                      offset: Offset(2, -2),
-                      blurRadius: 2,
-                    ),
-                    BoxShadow(
-                      color: Colors.black45,
-                      offset: Offset(-2, 2),
+                      offset: Offset(-4, 4),
                       blurRadius: 2,
                     ),
                   ],
                   borderRadius: BorderRadius.all(Radius.circular(Adapt.px(16))),
                 ),
                 height: Adapt().hp(10),
-                child: AnimatedOpacity(
-                    opacity: listButtonOpacity,
-                    duration: kThemeAnimationDuration,
-                    child: CustomPrimaryButton(
-                        radius: 16,
-                        whiteTheme: true,
-                        loading: model.isLoading,
-                        enabled: !model.isLoading,
-                        onPressed: () {
-                          model.updateFormType(FormType.list);
-                          model.updateListContent(itemsForList);
-                          model.updateListName('');
-                          listNameController.clear();
-                          return showDialog(
-                            context: context,
-                            builder: (context) => Dialog(
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.all(
-                                  Radius.circular(Adapt.px(8)),
-                                ),
-                              ),
-                              child: Padding(
-                                padding: EdgeInsets.all(Adapt.px(12)),
-                                child: SizedBox(
-                                  height: Adapt().hp(35),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceEvenly,
-                                    children: [
-                                      Padding(
-                                        padding:
-                                            EdgeInsets.only(top: Adapt.px(12)),
-                                        child: Text(
-                                          Strings.nameTheList,
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .headline3,
-                                        ),
-                                      ),
-                                      CustomTextField(
-                                        controller: listNameController,
-                                        onChanged: model.updateListName,
-                                        hint: Strings.name + '*',
-                                        errorText: model.submitted &&
-                                                !model.canSubmitDisplayName
-                                            ? Strings.name +
-                                                Strings.cantBeEmpty +
-                                                Strings.nameSmaller
-                                            : null,
-                                        enabled: !model.isLoading,
-                                        onEditingComplete:
-                                            displayNameEditingComplete,
-                                      ),
-                                      CustomPrimaryButton(
-                                        onPressed: () => submit(context),
-                                        enabled: !model.isLoading,
-                                        label: Strings.create,
-                                        loading: model.isLoading,
-                                      ),
-                                    ],
+                child: CustomPrimaryButton(
+                    radius: 16,
+                    whiteTheme: true,
+                    loading: model.isLoading,
+                    enabled: !model.isLoading,
+                    onPressed: () {
+                      model.updateFormType(FormType.list);
+                      model.updateListContent(itemsForList);
+                      model.updateListName('');
+                      listNameController.clear();
+                      return showDialog(
+                        context: context,
+                        builder: (context) => Dialog(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.all(
+                              Radius.circular(Adapt.px(8)),
+                            ),
+                          ),
+                          child: Padding(
+                            padding: EdgeInsets.all(Adapt.px(12)),
+                            child: SizedBox(
+                              height: Adapt().hp(35),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
+                                children: [
+                                  Padding(
+                                    padding: EdgeInsets.only(top: Adapt.px(12)),
+                                    child: Text(
+                                      Strings.nameTheList,
+                                      style:
+                                          Theme.of(context).textTheme.headline3,
+                                    ),
                                   ),
-                                ),
+                                  CustomTextField(
+                                    controller: listNameController,
+                                    onChanged: model.updateListName,
+                                    hint: Strings.name + '*',
+                                    errorText: model.submitted &&
+                                            !model.canSubmitDisplayName
+                                        ? Strings.name +
+                                            Strings.cantBeEmpty +
+                                            Strings.nameSmaller
+                                        : null,
+                                    enabled: !model.isLoading,
+                                    onEditingComplete:
+                                        displayNameEditingComplete,
+                                  ),
+                                  CustomPrimaryButton(
+                                    onPressed: () => submit(context),
+                                    enabled: !model.isLoading,
+                                    label: Strings.create,
+                                    loading: model.isLoading,
+                                  ),
+                                ],
                               ),
                             ),
-                          );
-                        },
-                        label: Strings.createList)),
+                          ),
+                        ),
+                      );
+                    },
+                    label: Strings.createList),
               ),
             ),
-          )
+          ),
+        )
       ],
     );
   }
