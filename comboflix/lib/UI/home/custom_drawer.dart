@@ -75,7 +75,7 @@ class CustomDrawer extends StatelessWidget {
                     Provider.of<AuthenticationProvider>(context, listen: false)
                         .signOut()
                         .then(
-                  (_) {
+                  (_) async {
                     Navigator.pushAndRemoveUntil(
                       context,
                       MaterialPageRoute(

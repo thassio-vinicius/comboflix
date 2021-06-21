@@ -247,7 +247,7 @@ class AuthenticationProvider {
       year: year ?? '',
     );
 
-    checkAndAddUser(user);
+    await checkAndAddUser(user);
   }
 
   @visibleForTesting

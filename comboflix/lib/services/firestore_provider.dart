@@ -1,8 +1,10 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:comboflix/models/firestore_user.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class FirestoreProvider {
   FirebaseFirestore firestore;
@@ -22,6 +24,19 @@ class FirestoreProvider {
     print("doc from firestore" + doc.toString());
 
     return FirestoreUser.fromMap(doc ?? {});
+  }
+
+  Future<FirestoreUser?> cachedUser() async {
+    var prefs = await SharedPreferences.getInstance();
+    String? userString = prefs.getString('cachedUser');
+
+    if (userString != null) {
+      Map<String, dynamic> json = Map.from(JsonCodec().decode(userString));
+
+      return FirestoreUser.fromMap(json);
+    } else {
+      return null;
+    }
   }
 
   Stream<FirestoreUser>? currentUserStream() {

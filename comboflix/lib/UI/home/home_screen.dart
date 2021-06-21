@@ -27,9 +27,10 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final FirestoreProvider provider =
         Provider.of<FirestoreProvider>(context, listen: false);
-    return FutureBuilder<FirestoreUser>(
-      future: provider.currentUser(),
+    return FutureBuilder<FirestoreUser?>(
+      future: provider.cachedUser(),
       builder: (context, snapshot) {
+        print(snapshot.connectionState);
         if (snapshot.connectionState == ConnectionState.waiting) {
           return LoadingScreen();
         }
@@ -44,28 +45,32 @@ class HomeScreen extends StatelessWidget {
               ),
             ),
           );
-        }
+        } else if (snapshot.hasData &&
+            snapshot.connectionState == ConnectionState.done)
+          return StreamBuilder<FirestoreUser>(
+            initialData: snapshot.data,
+            stream: provider.currentUserStream(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState != ConnectionState.active) {
+                return LoadingScreen();
+              } else {
+                print('data from snapshot ' + snapshot.data.toString());
 
-        return StreamBuilder<FirestoreUser>(
-          initialData: snapshot.data,
-          stream: provider.currentUserStream(),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState != ConnectionState.active) {
-              return LoadingScreen();
-            } else {
-              print('data from snapshot ' + snapshot.data.toString());
-
-              return ChangeNotifierProvider(
-                create: (_) => HomeModel(
-                    firestoreProvider: provider, user: snapshot.data!),
-                child: Consumer<HomeModel>(
-                  builder: (_, model, ___) =>
-                      _HomeScreen(model, fromSplash, snapshot.data!),
-                ),
-              );
-            }
-          },
-        );
+                return ChangeNotifierProvider(
+                  create: (_) => HomeModel(
+                      firestoreProvider: provider, user: snapshot.data!),
+                  child: Consumer<HomeModel>(
+                    builder: (_, model, ___) =>
+                        _HomeScreen(model, fromSplash, snapshot.data!),
+                  ),
+                );
+              }
+            },
+          );
+        else
+          return Container(
+            child: Text(snapshot.data.toString()),
+          );
       },
     );
   }
