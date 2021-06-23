@@ -101,6 +101,7 @@ class __HomeScreenState extends State<_HomeScreen>
   late AnimationController draggableController;
   Tween<Offset> draggableTween = Tween(begin: Offset(0, 1), end: Offset(0, 0));
   bool showFloatingButton = true;
+  late bool showListButton;
   List<Media> itemsForList = [];
 
   List<String> years() {
@@ -116,6 +117,7 @@ class __HomeScreenState extends State<_HomeScreen>
 
   @override
   void initState() {
+    showListButton = itemsForList.isNotEmpty;
     if (widget.fromSplash) {
       opacity = 0;
       Timer(Duration(seconds: 1), () {
@@ -278,6 +280,7 @@ class __HomeScreenState extends State<_HomeScreen>
                         listButtonOpacity = 1;
                         showFloatingButton = false;
                         itemsForList.add(widget.user.medias![index]);
+                        showListButton = true;
                       });
                     } else {
                       setState(() {
@@ -286,6 +289,7 @@ class __HomeScreenState extends State<_HomeScreen>
                         if (itemsForList.isEmpty) {
                           listButtonOpacity = 0;
                           showFloatingButton = true;
+                          showListButton = false;
                         }
                       });
                     }
@@ -315,94 +319,98 @@ class __HomeScreenState extends State<_HomeScreen>
             ),
           ),
         ),
-        Positioned(
-          bottom: 10,
-          left: 60,
-          right: 60,
-          child: AnimatedOpacity(
-            opacity: listButtonOpacity,
-            duration: kThemeAnimationDuration,
-            child: Padding(
-              padding: EdgeInsets.all(Adapt.px(12)),
-              child: Container(
-                decoration: BoxDecoration(
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black45,
-                      offset: Offset(-4, 4),
-                      blurRadius: 2,
-                    ),
-                  ],
-                  borderRadius: BorderRadius.all(Radius.circular(Adapt.px(16))),
-                ),
-                height: Adapt().hp(10),
-                child: CustomPrimaryButton(
-                    radius: 16,
-                    whiteTheme: true,
-                    loading: model.isLoading,
-                    enabled: !model.isLoading,
-                    onPressed: () {
-                      model.updateFormType(FormType.list);
-                      model.updateListContent(itemsForList);
-                      model.updateListName('');
-                      listNameController.clear();
-                      return showDialog(
-                        context: context,
-                        builder: (context) => Dialog(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.all(
-                              Radius.circular(Adapt.px(8)),
+        if (showListButton)
+          Positioned(
+            bottom: 10,
+            left: 60,
+            right: 60,
+            child: AnimatedOpacity(
+              opacity: listButtonOpacity,
+              duration: kThemeAnimationDuration,
+              child: Padding(
+                padding: EdgeInsets.all(Adapt.px(12)),
+                child: Container(
+                  decoration: BoxDecoration(
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black45,
+                        offset: Offset(-4, 4),
+                        blurRadius: 2,
+                      ),
+                    ],
+                    borderRadius:
+                        BorderRadius.all(Radius.circular(Adapt.px(16))),
+                  ),
+                  height: Adapt().hp(10),
+                  child: CustomPrimaryButton(
+                      radius: 16,
+                      whiteTheme: true,
+                      loading: model.isLoading,
+                      enabled: !model.isLoading,
+                      onPressed: () {
+                        model.updateFormType(FormType.list);
+                        model.updateListContent(itemsForList);
+                        model.updateListName('');
+                        listNameController.clear();
+                        return showDialog(
+                          context: context,
+                          builder: (context) => Dialog(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.all(
+                                Radius.circular(Adapt.px(8)),
+                              ),
                             ),
-                          ),
-                          child: Padding(
-                            padding: EdgeInsets.all(Adapt.px(12)),
-                            child: SizedBox(
-                              height: Adapt().hp(35),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceEvenly,
-                                children: [
-                                  Padding(
-                                    padding: EdgeInsets.only(top: Adapt.px(12)),
-                                    child: Text(
-                                      Strings.nameTheList,
-                                      style:
-                                          Theme.of(context).textTheme.headline3,
+                            child: Padding(
+                              padding: EdgeInsets.all(Adapt.px(12)),
+                              child: SizedBox(
+                                height: Adapt().hp(35),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceEvenly,
+                                  children: [
+                                    Padding(
+                                      padding:
+                                          EdgeInsets.only(top: Adapt.px(12)),
+                                      child: Text(
+                                        Strings.nameTheList,
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .headline3,
+                                      ),
                                     ),
-                                  ),
-                                  CustomTextField(
-                                    controller: listNameController,
-                                    onChanged: model.updateListName,
-                                    hint: Strings.name + '*',
-                                    errorText: model.submitted &&
-                                            !model.canSubmitDisplayName
-                                        ? Strings.name +
-                                            Strings.cantBeEmpty +
-                                            Strings.nameSmaller
-                                        : null,
-                                    enabled: !model.isLoading,
-                                    onEditingComplete:
-                                        displayNameEditingComplete,
-                                  ),
-                                  CustomPrimaryButton(
-                                    onPressed: () => submit(context),
-                                    enabled: !model.isLoading,
-                                    label: Strings.create,
-                                    loading: model.isLoading,
-                                  ),
-                                ],
+                                    CustomTextField(
+                                      controller: listNameController,
+                                      onChanged: model.updateListName,
+                                      hint: Strings.name + '*',
+                                      errorText: model.submitted &&
+                                              !model.canSubmitDisplayName
+                                          ? Strings.name +
+                                              Strings.cantBeEmpty +
+                                              Strings.nameSmaller
+                                          : null,
+                                      enabled: !model.isLoading,
+                                      onEditingComplete:
+                                          displayNameEditingComplete,
+                                    ),
+                                    CustomPrimaryButton(
+                                      onPressed: () => submit(context),
+                                      enabled: !model.isLoading,
+                                      label: Strings.create,
+                                      loading: model.isLoading,
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                      );
-                    },
-                    label: Strings.createList),
+                        );
+                      },
+                      label: Strings.createList),
+                ),
               ),
             ),
-          ),
-        )
+          )
       ],
     );
   }
@@ -506,7 +514,7 @@ class __HomeScreenState extends State<_HomeScreen>
             ),
             CustomTextField(
               controller: descriptionController,
-              hint: Strings.description + '*',
+              hint: Strings.description,
               errorText: model.submitted && !model.canSubmitDescription
                   ? Strings.description + Strings.cantBeEmpty
                   : null,
